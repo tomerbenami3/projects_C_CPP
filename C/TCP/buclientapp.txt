@@ -1,0 +1,22 @@
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "clientnet.h"
+
+int main() {
+
+    char buffer[4096];
+    int expected_data_len = sizeof(buffer);
+    int clients[CLIENTS_AMOUNT];
+
+    for(int i = 0; i < 10; ++i) {
+        clients[i] = CreateClient();
+    }
+
+    for(int i = 0; i < 10; ++i) {
+       printf("client sock: %d\n", clients[i]);
+    }
+
+    return 0;
+
+} 

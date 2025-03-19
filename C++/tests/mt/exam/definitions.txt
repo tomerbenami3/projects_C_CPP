@@ -1,0 +1,14 @@
+1. What are the conditions required for dead-lock?
+
+    a. mutual exclusion – a resource can only be used by one process each time.
+    b. hold and wait – a process holding resources is waiting for additional resources.
+    c. no preemption – resources cannot be taken by other processes.
+    d. circular wait – a circular chain of processes exists, each waiting for a resource held by the next.
+        for example - a is blocking b and b is blocking a. (not sure).
+
+
+2. priority inversion - when a higher priority task is waiting for a lower priority task to release a resource but the
+    low priority task is waiting for a medium priority task. this causes the higher task to wait for a lower priority task to finish.
+
+3. What is an atomic operation - a type of operation that runs without interruption, ensuring that its completed as a single unit.
+    executes completely or not at all.

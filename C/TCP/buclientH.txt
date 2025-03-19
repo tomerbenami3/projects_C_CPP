@@ -1,0 +1,12 @@
+// #ifndef __CLIENTNET_H__
+
+#define PORT 9090
+#define CLIENTS_AMOUNT 10
+
+int CreateClient();
+
+void ClientSendMessage(int _sock, char* _data_addr, int _data_len);
+
+int ClientReadMessage(int _sock, char* _buffer, int _expected_data_len);
+
+void ClientDestroy(int _sock);

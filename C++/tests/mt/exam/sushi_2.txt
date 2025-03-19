@@ -1,0 +1,7 @@
+1. the eating should lock a mutex and release is before the after:
+
+m_mutex.lock()
+eating += 1
+m_mutex.unlock()
+
+2. I would add another mutex for the hostess and one for the ppl who waits so it will be a single responsability.

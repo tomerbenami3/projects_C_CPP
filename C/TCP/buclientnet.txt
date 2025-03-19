@@ -1,0 +1,87 @@
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdbool.h>
+#include "clientnet.h"
+
+static int ClientSocketOpen();
+static struct sockaddr_in ClientInitSocket();
+static void ClientConnectSock(int _sock, struct sockaddr_in* _sin);
+
+int CreateClient() {
+
+    int sock = ClientSocketOpen();
+    struct sockaddr_in sin = ClientInitSocket();
+    ClientConnectSock(sock, (struct sockaddr *)&sin);
+
+    return sock;
+}
+
+void ClientSendMessage(int _sock, char* _data_addr, int _data_len) {
+    int sent_bytes = send(_sock, _data_addr, _data_len, 0);
+    if (sent_bytes < 0) {
+        perror("send failed");
+    }
+}
+
+int ClientReadMessage(int _sock, char* _buffer, int _expected_data_len) {
+
+    int read_bytes = recv(_sock, _buffer, _expected_data_len, 0);
+
+    if (read_bytes == 0) { 
+        close(_sock);
+    } else if (read_bytes < 0) { // error
+        perror("recv failed");
+    }
+    return read_bytes;
+}
+
+void ClientDestroy(int _sock) {
+    close(_sock);
+}
+
+static int ClientSocketOpen() {
+
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+
+    if (sock < 0) {
+        perror("socket failed");
+        return -1;
+    }
+
+    return sock;
+}
+
+static struct sockaddr_in ClientInitSocket() {
+
+    struct sockaddr_in sin;
+
+    memset(&sin, 0 ,sizeof(sin));
+    sin.sin_family = AF_INET;
+    sin.sin_addr.s_addr = inet_addr("127.0.0.1");
+    sin.sin_port = htons(PORT);
+
+    return sin;
+}
+
+static void ClientConnectSock(int _sock, struct sockaddr_in* _sin) {
+
+    if (connect(_sock, (struct sockaddr *) _sin, sizeof(*_sin)) < 0) {
+        printf("sock number: %d\n",_sock);
+        perror("Client Connection failed");
+        abort();
+    }
+}
+
+// void InitMultiClients(int* _clients) {
+
+//     int index;
+
+//     for(index = 0; index < CLIENTS_AMOUNT; ++index) {
+//         _clients[index] = -1;
+//     }
+// }

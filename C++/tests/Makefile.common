@@ -1,0 +1,29 @@
+CXX = g++
+CC = gcc
+
+CXXFLAGS = -g -std=c++17 -pedantic -Wall -Wextra
+CPPFLAGS = -I$(INCLUDES_DIR)
+CPPFLAGS+= -I$(MODULE_DIR)
+
+INCLUDES_DIR = ../../inc
+SOURCES_DIR = ../../src
+
+OBJS = mutest.o
+TARGET = mutest
+
+all: $(TARGET)
+
+check: $(TARGET)
+	./$(TARGET) -v
+
+leaks: $(TARGET)
+	valgrind --leak-check=full --show-leak-kinds=all ./$(TARGET)
+
+races: $(TARGET)
+	valgrind --tool=helgrind ./$(TARGET)
+
+$(TARGET) : $(OBJS)
+clean:
+	$(RM) $(OBJS) $(TARGET)
+
+

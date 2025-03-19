@@ -1,0 +1,12 @@
+Problems in the code:
+
+1.  if  eating = 0 and we are going into the if statement in 16.
+    and waiting = 5 and they are in blocking in line 5 (waiting for all the party to leave).
+    at the time the first thread releases the block in line 20, all 5 blocked threads can move on, a new thread is coming in and the "must_wait" = false
+    because the first thread is in line 21 already.
+    the new thread will go to update eating while all 5 are updating it and eating now = 6.
+
+--> eating is a shared resource and it should be under a critical section.
+
+
+2. mutex has 2 responsabilities. we should add another mutex that will be responsible for sitting ppl and 1 for hostess.
