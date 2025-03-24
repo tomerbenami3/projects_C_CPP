@@ -10,10 +10,9 @@ typedef enum Vector_Result {
 	VECTOR_SUCCESS,
 	VECTOR_UNITIALIZED_ERROR,				/**< Uninitialized vector error 	*/
 	VECTOR_ALLOCATION_ERROR,				/**< realloc error on grow/shrink   */
-	VECTOR_INDEX_OUT_OF_BOUNDS_ERROR,
-	VECTOR_OVERFLOW,
-	VECTOR_UNDERFLOW
-	/* Add more as needed by your implementation */
+	VECTOR_INDEX_OUT_OF_BOUNDS_ERROR,		/**< trying to remove empty items array */
+	VECTOR_UNDERFLOW, 
+	VECTOR_OVERFLOW						
 } VectorResult;
 
 /**  

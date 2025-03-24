@@ -1,14 +1,15 @@
-#include <stdlib.h> //malloc
-#include "../DoubleLinkedList/dlist.h"
-#include "hashmap.h"
+#include <stdlib.h> /*MALLOC FREE*/
+#include <stdio.h>
+#include "HashMap.h"
+#include"../DoubleLinkedList/dlist.h"
 
-#define HASH_FUNC _map->m_hashFunction
-#define MAP_CAPACITY _map->m_capacity
-#define HASH_EQUALITY _map->m_equalityFunction
-#define MAP_DATA _map->m_data
-#define MAP_NUM_OF_ITEMS _map->m_numOfItems
-
-struct HashMap {
+#define HASHFUNC _map->m_hashFunction
+#define CAPACITY _map->m_capacity
+#define EQUAL _map->m_equalityFunction
+#define DATA _map->m_data
+#define NUMOFITEMS _map->m_numOfItems
+struct HashMap
+{
     List** m_data;
     size_t (*m_hashFunction)(void* _data);
     int (*m_equalityFunction)(void* _firstData, void* _secondData);
@@ -17,227 +18,209 @@ struct HashMap {
     size_t m_numOfItems; /*number of occupied places in the table*/
 };
 
-typedef struct {
+struct Item{
     void* key;
-    void* value;
-}Item;
+    void* val;
+};
 
-static size_t isPrimeNumber(int num);
-static size_t FindInitialSize(size_t _capacity);
-static int FindVal(void* _element, void* _context);
-static void* SearchInList(List* _list, Item* _item, HashMap* _map);
-static int ComapreItems(void* _item1, void* _item2);
 
-HashMap* HashMap_Create(size_t _capacity, HashFunction _hashFunc, EqualityFunction _keysEqualFunc) {
 
-    if(_capacity < 0) {
+/*----------------------------------- HASHMAP CREATE -----------------------------------*/
+
+static size_t IsPrime(size_t _num);
+static size_t FindCapacity(size_t _capacity);
+
+HashMap* HashMapCreate(size_t _size, HashFunction _hashFunc,EqualityFunction _keysEqualFunc){
+    HashMap* map;
+    if(_size == 0 || _hashFunc == NULL || _keysEqualFunc == NULL){
         return NULL;
     }
-
-    HashMap* map = (HashMap*)malloc(sizeof(HashMap));
-
-    if(map == NULL) {
+    map = (HashMap*)malloc(sizeof(HashMap));
+    if (map == NULL){
         return NULL;
     }
-    map->m_capacity = FindInitialSize(_capacity);
+    map->m_capacity = FindCapacity(_size);
     map->m_data = (List**)calloc(map->m_capacity, sizeof(List*));
-
-    if(map->m_data == NULL) {
+    if(map->m_data == NULL){
+        free(map);
         return NULL;
     }
-
-    map->m_numOfItems = 0;
-    map->m_hashSize = _capacity;
+    
+    map->m_hashSize = _size;
+    map->m_equalityFunction = _keysEqualFunc;  
     map->m_hashFunction = _hashFunc;
-    map->m_equalityFunction = _keysEqualFunc;
+    map->m_numOfItems = 0;
 
     return map;
 }
 
-void HashMap_Destroy(HashMap** _map, void (*_keyDestroy)(void* _key), void (*_valDestroy)(void* _value)) {
+/*----------------------------------- HASHMAP DESTROY -----------------------------------*/
 
-    if(_map == NULL || *_map == NULL) {
+void HashMapDestroy(HashMap** _map, void (*_keyDestroy)(void* _key), void(*_valDestroy)(void* _value)){
+    size_t idx;
+    HashMap* map;
+    void* listItr, *end;
+    if(_map == NULL || *_map == NULL){
         return;
     }
-
-    Item* item;
-    size_t i = 1;
-    HashMap* mptr = *_map;
-
-    item->key = _keyDestroy;
-    item->value = _valDestroy;
-
-    while (i < mptr->m_capacity) {
-
-        if(mptr->m_data[i] == NULL) {
-            ++i;
-            continue;
+    map = *_map;
+    for (idx = 0; idx<map->m_capacity; idx++){
+        if (map->m_data[idx] != NULL){
+            listItr = ListItrBegin(map->m_data[idx]);
+            while(listItr != ListItrNext(listItr)){
+                if(_keyDestroy != NULL){
+                    _keyDestroy(ListItrGet(listItr));
+                }
+                if(_valDestroy != NULL){                   
+                    _valDestroy(ListItrGet(listItr));
+                }
+                listItr = ListItrNext(listItr);
+            }
+            ListDestroy(map->m_data[idx],free);
         }
-
-        ListDestroy(&mptr->m_data[i], free);
-        i++;
     }
-
-    if(mptr->m_data[0] != NULL) {
-        ListDestroy(&mptr->m_data[0], free);
-    }
-
-    free(mptr);
+    free(map);
     *_map = NULL;
 }
 
-Map_Result HashMap_Insert(HashMap* _map, const void* _key, const void* _value) {
+/*----------------------------------- HASHMAP FIND -----------------------------------*/
+static void* InList(List* _list, Item* _item, HashMap* _map);
 
-    if(_map == NULL) {
+Map_Result HashMapFind(const HashMap* _map, const void* _key, void**_pValue){
+    size_t idx;
+    Item* item = malloc(sizeof(Item)),*out = malloc(sizeof(Item));
+    void* value;
+    if (_map == NULL){
         return MAP_UNINITIALIZED_ERROR;
     }
-
-    if(_key == NULL) {
-        return MAP_KEY_NULL_ERROR;
+    if(_key == NULL){
+        MAP_KEY_NULL_ERROR;
     }
-
-    Item* item;
-
     item->key = _key;
-    item->value = _value;
-
-    size_t index = HASH_FUNC(_key);
-    index = index % MAP_CAPACITY;
-
-    if(MAP_DATA[index] == NULL) {
-        MAP_DATA[index] = ListCreate();
-        ListPushHead(MAP_DATA[index], item);
-        MAP_NUM_OF_ITEMS += 1;
-    } else if (SearchInList(MAP_DATA[index], item, _map)) {
-        ListPushTail(MAP_DATA[index], item);
-        MAP_NUM_OF_ITEMS++;
-    } else {
-        return MAP_KEY_DUPLICATE_ERROR;
+    idx = HASHFUNC(_key);
+    idx = idx % CAPACITY;
+    out = ListItrForEach(ListItrBegin(DATA[idx]),ListItrEnd(DATA[idx]),EQUAL,item);
+    if(out == ListItrEnd(DATA[idx])){
+        return MAP_KEY_NOT_FOUND_ERROR;
     }
-
+    out = ListItrGet(out);
+    *_pValue = out->val;
     return MAP_SUCCESS;
 }
 
-Map_Result HashMap_Remove(HashMap* _map, const void* _searchKey, void** _pKey, void** _pValue) {
 
-    Item* item;
-    size_t index = HASH_FUNC(_searchKey);
+/*----------------------------------- HASHMAP INSERT -----------------------------------*/
+
+Map_Result HashMapInsert(HashMap* _map, const void* _key, const void* _value){
+    size_t idx;
+    Item* item = malloc(sizeof(Item));
+    if (_map == NULL){
+        return MAP_UNINITIALIZED_ERROR;
+    }
+    if(_key == NULL){
+        MAP_KEY_NULL_ERROR;
+    }
+    item->key = _key;
+    item->val = _value;
+    idx = HASHFUNC(_key);
+    idx = idx % CAPACITY;
+    
+    if(DATA[idx] == NULL){
+        DATA[idx] = ListCreate();
+        ListPushTail(DATA[idx], item);
+        NUMOFITEMS++;
+    }
+    else{
+        if(InList(DATA[idx],item,_map) == NULL){
+            ListPushTail(DATA[idx], item);
+            NUMOFITEMS++;
+        }
+        else{
+            return MAP_KEY_DUPLICATE_ERROR;
+        }
+    }
+    return MAP_SUCCESS;
+}
+
+/*----------------------------------- HASHMAP REMOVE -----------------------------------*/
+
+Map_Result HashMapRemove(HashMap* _map, const void* _searchKey, void** _pKey, void** _pValue){
+    size_t idx;
+    Item* item = malloc(sizeof(Item)),*out = malloc(sizeof(Item));
+    void* value;
+    if (_map == NULL){
+        return MAP_UNINITIALIZED_ERROR;
+    }
+    if(_searchKey == NULL){
+        MAP_KEY_NULL_ERROR;
+    }
     item->key = _searchKey;
-    void* elementToRemove;
-
-    if(_map == NULL) {
-        return MAP_UNINITIALIZED_ERROR;
-    }
-
-    if(_searchKey == NULL) {
-        return MAP_KEY_NULL_ERROR;
-    }
-
-    elementToRemove = SearchInList(MAP_DATA[index], item, _map);
-
-    if(elementToRemove) {
-        ListItrRemove(elementToRemove);
-    } else {
+    idx = HASHFUNC(_searchKey);
+    idx = idx % CAPACITY;
+    out = ListItrForEach(ListItrBegin(DATA[idx]),ListItrEnd(DATA[idx]),EQUAL,item);
+    if(out == ListItrEnd(DATA[idx])){
         return MAP_KEY_NOT_FOUND_ERROR;
     }
-
+    item = ListItrGet(out);  
+    *_pKey = item->key;
+    *_pValue = item->val;
+    ListItrRemove(out);
+    NUMOFITEMS--;
     return MAP_SUCCESS;
 }
 
-Map_Result HashMap_Find(const HashMap* _map, const void* _key, void** _pValue) {
 
-    Item* item;
-    size_t index = HASH_FUNC(_key);
-    item->key = _key;
-    void* element;
+/*----------------------------------- HASHMAP SIZE -----------------------------------*/
 
-    if(_map == NULL) {
-        return MAP_UNINITIALIZED_ERROR;
-    }
-
-    if(_key == NULL) {
-        return MAP_KEY_NULL_ERROR;
-    }
-
-    element = SearchInList(MAP_DATA[index], item, _map);
-
-    if(element) {
-        *_pValue = ListItrGet(element);
-    } else {
-        return MAP_KEY_NOT_FOUND_ERROR;
-    }
-
-    return MAP_SUCCESS;
-
-}
-
-size_t HashMap_Size(const HashMap* _map) {
-
-    if(_map == NULL) {
+size_t HashMapSize(const HashMap* _map){
+    if(_map == NULL){
         return 0;
     }
-
-    return MAP_NUM_OF_ITEMS;
+    return NUMOFITEMS;
 }
 
-//--private functions -----------------------
 
-void Hash(void* _key) {
+/*------------------------------------------------------------------------------------------*/
 
-}
+static void* InList(List* _list, Item* _item, HashMap* _map){
+    void* curElement, *lastElemnt, *curItem;
 
-static int ComapreItems(void* _item1, void* _item2) {
+    curElement = ListItrBegin(_list);
+    curItem = ListItrGet(curElement);
+    lastElemnt = ListItrEnd(_list);
 
-    Item* item1 = (Item*)_item1;
-    Item* item2 = (Item*)_item2;
-
-    return *(int*)item1->key == *(int*)item2->key;
-}
-
-static void* SearchInList(List* _list, Item* _item, HashMap* _map) {
-
-    void* element = ListItrBegin(_list);
-    void* lastElement = ListItrEnd(_list);
-    void* value;
-
-    while(element != lastElement) {
-
-        value = ListItrGet(element);
-        if(HASH_EQUALITY(value, _item)) {
-            return element;
+    while(curElement != lastElemnt){
+        if(EQUAL(_item, curItem)){
+            return curElement;
         }
-        element = ListItrNext(element);
+        curElement = ListItrNext(curElement);
+        curItem = ListItrGet(curElement);
     }
-
     return NULL;
-
 }
 
-static size_t FindInitialSize(size_t _capacity) {
-
-    while(isPrimeNumber(_capacity)) {
-        _capacity++;
+static size_t IsPrime(size_t _num){
+    int check;
+    if(_num%2 == 0){
+        return 0;
     }
+    for(check = 3; check < _num; check += 2){
+        if(_num%check == 0){
+            return 0;
+        }
+    }
+    return 1;
+}
 
+static size_t FindCapacity(size_t _capacity){
+    while(!IsPrime(_capacity)){
+        ++_capacity;
+    }
     return _capacity;
 }
-
-static size_t isPrimeNumber(int num) {
-
-    if(num % 2 == 0) {
-        return FAILED; //if number is even its defenitly not prime
-    }
-
-    for (int i = 3; i < num / 2; i +=2) {
-        if (num % i == 0) {
-            return FAILED;
-        }
-    }
-
-    return OK;
-}
-
-static int FindVal(void* _element, void* _context) {
-
-    return *(int*)_element == *(int*)_context;
-}
+/*----------------------------------- HASHMAP REHASH -----------------------------------*/
+/* NOT MANDATORY */
+Map_Result HashMapRehash(HashMap *_map, size_t newCapacity);
+/*----------------------------------- HASHMAP FOREACH -----------------------------------*/
+/* NOT MANDATORY */
+size_t HashMapForEach(const HashMap* _map, KeyValueActionFunction _action,void* _context);

@@ -1,9 +1,7 @@
 #ifndef __HASHMAP_H__
 #define __HASHMAP_H__
 
-#define OK 0
-#define FAILED 1
-
+#include"../DoubleLinkedList/dlist.h"
 #include <stddef.h>  /* size_t */
 
 /** 
@@ -19,6 +17,7 @@
 
 
 typedef struct HashMap HashMap;
+typedef struct Item Item;
 
 typedef enum Map_Result {
 	MAP_SUCCESS = 0,
@@ -28,6 +27,7 @@ typedef enum Map_Result {
 	MAP_KEY_NOT_FOUND_ERROR, 		/**< Key not found 				*/
 	MAP_ALLOCATION_ERROR 			/**< Allocation error 	 		*/
 } Map_Result;
+
 
 
 typedef size_t (*HashFunction)(void* _key);
@@ -43,7 +43,7 @@ typedef int	(*KeyValueActionFunction)(const void* _key, void* _value, void* _con
  * @param[in] _keysEqualFunc - equality check function for keys. 
  * @return newly created map or null on failure
  */
-HashMap* HashMapCreate(size_t _capacity, HashFunction _hashFunc, EqualityFunction _keysEqualFunc);
+HashMap* HashMapCreate(size_t _size, HashFunction _hashFunc, EqualityFunction _keysEqualFunc);
 
 
 /**
@@ -62,7 +62,7 @@ void HashMapDestroy(HashMap** _map, void (*_keyDestroy)(void* _key), void (*_val
  * @param[in] _newCapacity - new capacity shall be rounded to nearest larger prime number.
  * @return MAP_SUCCESS or MAP_ALLOCATION_ERROR
  */
-Map_Result HashMap_Rehash(HashMap *_map, size_t newCapacity);
+Map_Result HashMapRehash(HashMap *_map, size_t newCapacity);
 
 
 /** 
@@ -143,7 +143,7 @@ typedef struct Map_Stats {
 	size_t averageChainLength;
 } Map_Stats;
 
-Map_Stats HashMap_GetStatistics(const HashMap* _map);
+Map_Stats HashMapGetStatistics(const HashMap* _map);
 
 #endif /* NDEBUG */
 
