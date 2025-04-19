@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/tomerbenami/stm32_uart_receiver/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

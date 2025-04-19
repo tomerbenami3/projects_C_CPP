@@ -1,0 +1,93 @@
+// #include <iostream>
+// #include <serial/serial.h>
+// #include <chrono>
+// #include <ctime>
+// #include <sstream>
+// #include <iomanip>
+// #include <thread>
+
+// void sendCommand(serial::Serial& stm32, const std::string& cmd) {
+//     stm32.write(cmd);
+//     stm32.flush();
+//     std::cout << "Sent: " << cmd;
+//     std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    
+//     // Read response for up to 1 second
+//     auto start = std::chrono::steady_clock::now();
+//     while (std::chrono::steady_clock::now() - start < std::chrono::seconds(1)) {
+//         if (stm32.available()) {
+//             std::string line = stm32.readline(1024, "\r\n");
+//             if (!line.empty()) {
+//                 std::cout << "Received: " << line << std::endl;
+//             }
+//         }
+//     }
+// }
+
+// void readLogData(serial::Serial& stm32, int seconds) {
+//     auto start = std::chrono::steady_clock::now();
+//     while (std::chrono::steady_clock::now() - start < std::chrono::seconds(seconds)) {
+//         if (stm32.available()) {
+//             std::string line = stm32.readline(1024, "\r\n");
+//             if (!line.empty()) {
+//                 std::cout << "Received: " << line << std::endl;
+//             }
+//         } else {
+//             std::this_thread::sleep_for(std::chrono::milliseconds(10));
+//         }
+//     }
+// }
+
+// int main() {
+//     try {
+//         std::string port = "/dev/tty.usbmodem1103";
+//         serial::Serial stm32(port, 115200, serial::Timeout::simpleTimeout(1000));
+
+//         if (!stm32.isOpen()) {
+//             std::cerr << "Failed to open port: " << port << std::endl;
+//             return 1;
+//         }
+
+//         std::cout << "Connected to STM32 on " << port << std::endl;
+
+//         // --- Step 1: SETTIME ---
+//         auto now = std::chrono::system_clock::now();
+//         std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+//         std::tm* timeinfo = std::localtime(&now_c);
+
+//         std::ostringstream oss;
+//         oss << "SETTIME "
+//             << std::put_time(timeinfo, "%Y-%m-%d %H:%M:%S")
+//             << "\r\n";
+//         sendCommand(stm32, oss.str());
+
+//         // --- Step 2: SETCONFIG ---
+//         std::string config = "SETCONFIG temp_min=15 temp_max=35 humidity_min=20 light_min=25 voltage_min=3.5\r\n";
+//         sendCommand(stm32, config);
+
+//         // --- Step 3: GET ---
+//         // std::string get = "GET 2025-04-10 TO 2025-04-10\r\n"; // Adjust to today
+//         // sendCommand(stm32, get);
+
+//         // // --- Optional: Initial log scan for a few seconds ---
+//         // readLogData(stm32, 3);
+
+//         std::cout << "Listening for future messages...\n";
+
+//         // --- Passive loop: Wait forever and print incoming messages ---
+//         while (true) {
+//             if (stm32.available()) {
+//                 std::string line = stm32.readline(1024, "\r\n");
+//                 if (!line.empty()) {
+//                     std::cout << "Received: " << line << std::endl;
+//                 }
+//             } else {
+//                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
+//             }
+//         }
+
+//     } catch (serial::IOException& e) {
+//         std::cerr << "Serial Exception: " << e.what() << std::endl;
+//         return 1;
+//     }
+// }

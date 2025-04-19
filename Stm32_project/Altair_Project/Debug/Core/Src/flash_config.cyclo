@@ -1,0 +1,2 @@
+../Core/Src/flash_config.c:15:9:FlashConfig_Save	4
+../Core/Src/flash_config.c:44:9:FlashConfig_Load	1

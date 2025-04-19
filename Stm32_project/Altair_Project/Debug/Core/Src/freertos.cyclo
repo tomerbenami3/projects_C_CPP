@@ -1,0 +1,11 @@
+../Core/Src/freertos.c:157:6:MX_FREERTOS_Init	1
+../Core/Src/freertos.c:216:6:StartDefaultTask	1
+../Core/Src/freertos.c:230:6:SampleData	1
+../Core/Src/freertos.c:250:6:DHT_Task	2
+../Core/Src/freertos.c:265:6:HAL_ADC_ConvCpltCallback	2
+../Core/Src/freertos.c:280:6:ControllerTask	3
+../Core/Src/freertos.c:312:6:LoggerTask	8
+../Core/Src/freertos.c:388:13:EventTypeToString	3
+../Core/Src/freertos.c:396:6:EventTask	2
+../Core/Src/freertos.c:423:6:CommTask	3
+../Core/Src/freertos.c:456:6:KeepAliveTask	1

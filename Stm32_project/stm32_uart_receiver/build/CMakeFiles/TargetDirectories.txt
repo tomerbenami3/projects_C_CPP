@@ -1,0 +1,3 @@
+/Users/tomerbenami/stm32_uart_receiver/build/CMakeFiles/receiver.dir
+/Users/tomerbenami/stm32_uart_receiver/build/CMakeFiles/edit_cache.dir
+/Users/tomerbenami/stm32_uart_receiver/build/CMakeFiles/rebuild_cache.dir

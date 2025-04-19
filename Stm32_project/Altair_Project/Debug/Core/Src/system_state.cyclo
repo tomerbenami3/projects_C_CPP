@@ -1,0 +1,4 @@
+../Core/Src/system_state.c:26:6:UpdateSampleRateForMode	2
+../Core/Src/system_state.c:34:6:SystemState_Init	1
+../Core/Src/system_state.c:38:12:SystemState_Get	1
+../Core/Src/system_state.c:42:5:SystemState_Update	9
