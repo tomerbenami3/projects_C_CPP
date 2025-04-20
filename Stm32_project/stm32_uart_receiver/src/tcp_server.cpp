@@ -17,7 +17,7 @@ TcpServer::~TcpServer() {
 void TcpServer::start(uint16_t port) {
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd == -1) {
-        std::cerr << "Failed to create socket\n";
+        std::cerr << "❌ Failed to create socket\n";
         return;
     }
 
@@ -27,24 +27,30 @@ void TcpServer::start(uint16_t port) {
     address.sin_port = htons(port);
 
     int opt = 1;
-    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+        std::cerr << "❌ setsockopt failed\n";
+        close(server_fd);
+        return;
+    }
 
+    std::cout << "🔌 Binding to 0.0.0.0:" << port << "...\n";
     if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
-        std::cerr << "Bind failed\n";
+        std::cerr << "❌ Bind failed\n";
         close(server_fd);
         return;
     }
 
     if (listen(server_fd, 5) < 0) {
-        std::cerr << "Listen failed\n";
+        std::cerr << "❌ Listen failed\n";
         close(server_fd);
         return;
     }
 
     running = true;
     accept_thread = std::thread(&TcpServer::acceptLoop, this);
-    std::cout << "TCP Server started on port " << port << "\n";
+    std::cout << "🚀 TCP Server started and listening on port " << port << "\n";
 }
+
 
 void TcpServer::stop() {
     running = false;
@@ -83,4 +89,4 @@ void TcpServer::handleClient(int client_fd, int client_id) {
     client->start();
 }
 
-//GET 2025-04-11 14:45:00 TO 2025-04-11 14:50:00
+//GET 2025-04-19 15:41:00 TO 2025-04-19 15:42:00

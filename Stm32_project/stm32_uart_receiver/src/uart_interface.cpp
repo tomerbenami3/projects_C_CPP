@@ -33,7 +33,8 @@ public:
     }
 
     void writeLine(const std::string& line) override {
-        serial.write(line + "\r\n");
+        std::string new_line = line + "\r\n";
+        serial.write(new_line);
     }
 
     std::string readLine() override {

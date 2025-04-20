@@ -1,3 +1,2 @@
 ../Core/Src/command_parser.c:23:6:ParseCommand	376	static
-../Core/Src/command_parser.c:142:6:ParseCommand_New	56	static
-../Core/Src/command_parser.c:182:12:Date_Compare	16	static
+../Core/Src/command_parser.c:142:12:Date_Compare	16	static

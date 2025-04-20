@@ -431,8 +431,10 @@ void CommTask(void *argument)
 
         if (flags & COMM_EVENT_RX_COMPLETE)
         {
-            printf("Command complete: %s\r\n", commandBuffer);
-            ParseCommand_New(commandBuffer);
+        	ParseCommand(commandBuffer);
+
+            commandIndex = 0;
+			memset(commandBuffer, 0, UART_COMMAND_BUFFER_SIZE);
         }
 
         if (flags & COMM_EVENT_KEEP_ALIVE)

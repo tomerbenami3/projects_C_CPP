@@ -24,6 +24,7 @@
 #include "main.h"
 #include "command_parser.h"
 #include <stdio.h>
+#include <string.h>
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart2;
@@ -143,50 +144,27 @@ int _write(int file, char *ptr, int len)
     return len;
 }
 
-//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-//{
-//    if (huart->Instance == USART2)
-//    {
-//        char receivedChar = uartRxBuffer[0];
-//
-//        if (receivedChar == '\r' || receivedChar == '\n')
-//        {
-//            if (commandIndex > 0)
-//            {
-//                commandBuffer[commandIndex] = '\0';
-//                osEventFlagsSet(commEventFlags, 0x01);
-//                commandIndex = 0;
-//            }
-//        }
-//        else
-//        {
-//            if (commandIndex < UART_COMMAND_BUFFER_SIZE - 1)
-//            {
-//                commandBuffer[commandIndex++] = receivedChar;
-//            }
-//        }
-//
-//        HAL_UART_Receive_IT(&huart2, uartRxBuffer, 1);
-//    }
-//}
-
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     if (huart->Instance == USART2)
     {
         char receivedChar = uartRxBuffer[0];
 
-        if (receivedChar == 'u')  // 0x75
+        if (receivedChar == '\r' || receivedChar == '\n')
         {
             if (commandIndex > 0)
             {
-                commandBuffer[commandIndex] = '\0';  // Null-terminate the string
+                commandBuffer[commandIndex] = '\0';
                 osEventFlagsSet(commEventFlags, 0x01);
-                commandIndex = 0;
             }
         }
         else
         {
+        	if (commandIndex == 0)
+			{
+				memset(commandBuffer, 0, UART_COMMAND_BUFFER_SIZE);
+			}
+
             if (commandIndex < UART_COMMAND_BUFFER_SIZE - 1)
             {
                 commandBuffer[commandIndex++] = receivedChar;
@@ -196,11 +174,5 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         HAL_UART_Receive_IT(&huart2, uartRxBuffer, 1);
     }
 }
-
-
-
-
-
-
 
 /* USER CODE END 1 */

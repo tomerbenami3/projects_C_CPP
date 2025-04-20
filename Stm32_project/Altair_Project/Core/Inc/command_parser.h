@@ -10,7 +10,6 @@
 
 #include "date_time.h"
 
-void ParseCommand_New(const char* rawMessage);
 void ParseCommand(const char* cmd);
 
 #endif /* INC_COMMAND_PARSER_H_ */

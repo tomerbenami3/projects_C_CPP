@@ -8,4 +8,4 @@
 ../Core/Src/freertos.c:388:13:EventTypeToString	16	static
 ../Core/Src/freertos.c:396:6:EventTask	216	static
 ../Core/Src/freertos.c:423:6:CommTask	56	static
-../Core/Src/freertos.c:456:6:KeepAliveTask	16	static
+../Core/Src/freertos.c:458:6:KeepAliveTask	16	static

@@ -112,9 +112,9 @@ int main(void)
   /* Init scheduler */
   osKernelInitialize();
 
-  uint8_t test_buf[64];
-  HAL_UART_Receive(&huart2, test_buf, sizeof(test_buf), 5000);
-  printf("Received (poll): %s\r\n", test_buf);
+//  uint8_t test_buf[64];
+//  HAL_UART_Receive(&huart2, test_buf, sizeof(test_buf), 5000);
+//  printf("Received (poll): %s\r\n", test_buf);
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
   MX_FREERTOS_Init();

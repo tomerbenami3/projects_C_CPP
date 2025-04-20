@@ -46,7 +46,7 @@ void MessageRouter::handleClientCommand(int clientId, const std::string& command
     if (command.rfind("SETCONFIG", 0) == 0) {
         uart->writeLine(command);
     }
-    else if (command.rfind("GET ", 0) == 0) {
+    else if (command.rfind("x ", 0) == 0) {
         uart->writeLine(command);
     }
     else {

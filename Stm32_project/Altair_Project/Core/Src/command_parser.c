@@ -139,46 +139,6 @@ void ParseCommand(const char* cmd)
     }
 }
 
-void ParseCommand_New(const char* rawMessage)
-{
-    printf("ParseCommandNew received: '%s'\r\n", rawMessage);
-
-    char tag[16];
-    int length;
-    const char* payload;
-
-    // Try parsing the tag and length
-    int parsed = sscanf(rawMessage, "%15s %d", tag, &length);
-    if (parsed != 2) {
-        printf("Invalid command format. Expected: <TAG> <LENGTH> <DATA>\r\n");
-        return;
-    }
-
-    payload = strchr(rawMessage, ' ');
-    if (!payload) return;
-    payload++;
-
-    payload = strchr(payload, ' ');
-    if (!payload) return;
-    payload++;
-
-    if ((int)strlen(payload) != length) {
-    	printf("Length mismatch. Declared: %d, Actual: %u\r\n", length, (unsigned int)strlen(payload));
-        return;
-    }
-
-    if (strcmp(tag, "SETTIME") == 0) {
-        ParseCommand(payload);
-    } else if (strcmp(tag, "GET") == 0) {
-        ParseCommand(payload);
-    } else if (strcmp(tag, "SETCONFIG") == 0) {
-        ParseCommand(payload);
-    } else {
-        printf("Unknown TAG: %s\r\n", tag);
-    }
-}
-
-
 static int Date_Compare(Date* a, Date* b)
 {
     if (a->year != b->year)
